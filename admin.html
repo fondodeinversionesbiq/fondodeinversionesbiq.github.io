@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administrador</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #111827; }
+        .bg-gold-600 { background-color: #D4AF37; }
+        .text-gold-400 { color: #F0C42F; }
+        .ring-gold-500 { --tw-ring-color: #D4AF37; }
+        .form-input {
+            width: 100%;
+            background-color: #374151;
+            border: 1px solid #4b5563;
+            color: white;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+        }
+        .form-input:focus {
+            outline: none;
+            --tw-ring-opacity: 1;
+            box-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+        .btn-primary { background-color: #D4AF37; color: black; }
+        .btn-primary:hover { background-color: #b89b3c; }
+        .btn-secondary { background-color: #4b5563; color: white; }
+        .btn-secondary:hover { background-color: #6b7280; }
+    </style>
+</head>
+<body class="text-gray-200">
+
+    <div id="admin-login" class="min-h-screen flex items-center justify-center">
+        <div class="w-full max-w-md bg-gray-900 p-8 rounded-lg shadow-lg border border-gray-700">
+            <h1 class="text-2xl font-bold text-center text-gold-400 mb-6">Acceso de Administrador</h1>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-400">Correo Electrónico</label>
+                    <input type="email" id="email" required class="form-input mt-1">
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-400">Contraseña</label>
+                    <input type="password" id="password" required class="form-input mt-1">
+                </div>
+                <button type="submit" class="btn btn-primary w-full">Ingresar</button>
+            </form>
+            <div id="login-feedback" class="mt-4 text-center text-red-400"></div>
+        </div>
+    </div>
+
+    <div id="admin-dashboard" class="hidden">
+        <header class="bg-gray-900 p-4 flex justify-between items-center border-b border-gray-700">
+            <h1 class="text-xl font-bold text-gold-400">Panel de Administración</h1>
+            <button id="admin-logout-btn" class="btn btn-secondary">Cerrar Sesión</button>
+        </header>
+
+        <main class="p-4 sm:p-6 md:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-1 space-y-8">
+                <div class="bg-gray-900 p-6 rounded-lg border border-gray-700">
+                    <h2 class="text-lg font-bold mb-4 text-gold-400 border-b border-gray-600 pb-2">Registrar Nuevo Inversionista</h2>
+                    <form id="register-user-form" class="space-y-4">
+                        <input type="text" id="reg-fullname" placeholder="Nombre Completo" required class="form-input">
+                        <input type="email" id="reg-email" placeholder="Correo Electrónico" required class="form-input">
+                        <input type="password" id="reg-password" placeholder="Contraseña" required class="form-input">
+                        <input type="tel" id="reg-phone" placeholder="Teléfono" class="form-input">
+                        <button type="submit" class="btn btn-primary w-full">Registrar Usuario</button>
+                        <div id="register-feedback" class="text-center"></div>
+                    </form>
+                </div>
+
+                <div class="bg-gray-900 p-6 rounded-lg border border-gray-700">
+                    <h2 class="text-lg font-bold mb-4 text-gold-400 border-b border-gray-600 pb-2">Añadir Nueva Inversión</h2>
+                    <form id="add-investment-form" class="space-y-4">
+                        <select id="inv-user-id" required class="form-input"><option value="">Seleccionar Inversionista...</option></select>
+                        <input type="number" id="inv-amount" placeholder="Monto de Inversión (ej: 50000000)" required class="form-input" step="100000">
+                        <input type="date" id="inv-date" required class="form-input">
+                        <label class="block text-sm text-gray-400">Contrato (PDF)</label>
+                        <input type="file" id="inv-contract" accept=".pdf" required class="form-input file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gold-600 file:text-black hover:file:bg-gold-500">
+                        <button type="submit" class="btn btn-primary w-full">Añadir Inversión</button>
+                        <div id="investment-feedback" class="text-center"></div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 bg-gray-900 p-6 rounded-lg border border-gray-700">
+                <h2 class="text-lg font-bold mb-4 text-gold-400 border-b border-gray-600 pb-2">Lista de Inversionistas</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="border-b border-gray-600">
+                                <th class="p-2">Nombre</th>
+                                <th class="p-2">Email</th>
+                                <th class="p-2">Capital Activo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-list-body">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- CONFIGURACIÓN DE SUPABASE ---
+    const SUPABASE_URL = 'https://cgpioodxsryqfyofjfvy.supabase.co'; // Pega tu URL aquí
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNncGlvb2R4c3J5cWZ5b2ZqZnZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTY2MjIsImV4cCI6MjA2MzI5MjYyMn0.TB8MmMzMc18hktGiWal_Fjmuq4ptqp7pz3mi0o8LJLY'; // Pega tu Clave Anon aquí
+    
+    // --- CORRECCIÓN AQUÍ ---
+    // Renombramos la constante a 'supabaseClient' para evitar el conflicto.
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const adminLoginSection = document.getElementById('admin-login');
+    const adminDashboardSection = document.getElementById('admin-dashboard');
+    const loginForm = document.getElementById('login-form');
+    const loginFeedback = document.getElementById('login-feedback');
+    const adminLogoutBtn = document.getElementById('admin-logout-btn');
+    const formatCurrency = (amount) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(amount);
+
+    // --- LÓGICA DE AUTENTICACIÓN ---
+
+    // Verificar si hay una sesión activa al cargar la página
+    const checkSession = async () => {
+        // Usamos la variable corregida 'supabaseClient'
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session) {
+            const isAdmin = await verifyAdminRole(session.user);
+            if (isAdmin) {
+                showDashboard();
+            } else {
+                await supabaseClient.auth.signOut(); // Desloguear si no es admin
+                showLogin("Acceso denegado. No tienes permisos de administrador.");
+            }
+        } else {
+            showLogin();
+        }
+    };
+
+    const verifyAdminRole = async (user) => {
+        if (!user) return false;
+        // Usamos la variable corregida 'supabaseClient'
+        const { data, error } = await supabaseClient
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+        
+        return !error && data && data.role === 'admin';
+    };
+    
+    const showDashboard = () => {
+        adminLoginSection.classList.add('hidden');
+        adminDashboardSection.classList.remove('hidden');
+        initializeDashboard();
+    };
+
+    const showLogin = (message = '') => {
+        adminDashboardSection.classList.add('hidden');
+        adminLoginSection.classList.remove('hidden');
+        loginFeedback.textContent = message;
+    };
+
+    // Manejar el envío del formulario de login
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        loginFeedback.textContent = '';
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        // Usamos la variable corregida 'supabaseClient'
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+        if (error) {
+            loginFeedback.textContent = 'Error: ' + error.message;
+            return;
+        }
+
+        if (data.user) {
+            const isAdmin = await verifyAdminRole(data.user);
+            if (isAdmin) {
+                showDashboard();
+            } else {
+                await supabaseClient.auth.signOut();
+                loginFeedback.textContent = 'Acceso denegado. No eres administrador.';
+            }
+        }
+    });
+
+    // Manejar el logout
+    adminLogoutBtn.addEventListener('click', async () => {
+        // Usamos la variable corregida 'supabaseClient'
+        await supabaseClient.auth.signOut();
+        showLogin('Sesión cerrada correctamente.');
+    });
+
+
+    // --- LÓGICA DEL DASHBOARD ---
+
+    const userListBody = document.getElementById('user-list-body');
+    const userSelectDropdown = document.getElementById('inv-user-id');
+    const registerForm = document.getElementById('register-user-form');
+    const investmentForm = document.getElementById('add-investment-form');
+    
+    const initializeDashboard = async () => {
+        // Cargar y mostrar la lista de usuarios
+        // Usamos la variable corregida 'supabaseClient'
+        const { data: profiles, error: profilesError } = await supabaseClient
+            .from('profiles')
+            .select('id, full_name, email')
+            .order('full_name');
+        
+        if (profilesError) {
+            console.error("Error al cargar perfiles:", profilesError);
+            return;
+        }
+
+        // Usamos la variable corregida 'supabaseClient'
+        const { data: investments, error: invError } = await supabaseClient
+            .from('investments')
+            .select('user_id, amount, status');
+
+        if (invError) {
+            console.error("Error al cargar inversiones:", invError);
+            return;
+        }
+
+        // Limpiar lista y dropdown
+        userListBody.innerHTML = '';
+        userSelectDropdown.innerHTML = '<option value="">Seleccionar Inversionista...</option>';
+
+        profiles.forEach(profile => {
+            // Llenar la tabla
+            const userInvestments = investments.filter(inv => inv.user_id === profile.id && inv.status === 'Activa');
+            const totalInvested = userInvestments.reduce((sum, inv) => sum + parseFloat(inv.amount), 0);
+            
+            const row = `
+                <tr class="border-b border-gray-700 hover:bg-gray-800">
+                    <td class="p-2">${profile.full_name}</td>
+                    <td class="p-2">${profile.email}</td>
+                    <td class="p-2">${formatCurrency(totalInvested)}</td>
+                </tr>`;
+            userListBody.innerHTML += row;
+
+            // Llenar el dropdown
+            const option = document.createElement('option');
+            option.value = profile.id;
+            option.textContent = profile.full_name;
+            userSelectDropdown.appendChild(option);
+        });
+    };
+    
+    // Manejar registro de nuevo usuario
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const feedbackEl = document.getElementById('register-feedback');
+        feedbackEl.textContent = 'Registrando...';
+        
+        const fullName = document.getElementById('reg-fullname').value;
+        const email = document.getElementById('reg-email').value;
+        const password = document.getElementById('reg-password').value;
+        const phone = document.getElementById('reg-phone').value;
+
+        // Usamos la variable corregida 'supabaseClient'
+        const { data, error } = await supabaseClient.auth.signUp({
+            email,
+            password,
+            options: {
+                data: { // Estos datos serán usados por el trigger handle_new_user
+                    full_name: fullName,
+                    phone: phone
+                }
+            }
+        });
+
+        if (error) {
+            feedbackEl.textContent = 'Error: ' + error.message;
+            feedbackEl.style.color = 'red';
+        } else {
+            feedbackEl.textContent = '¡Usuario registrado con éxito!';
+            feedbackEl.style.color = 'green';
+            registerForm.reset();
+            initializeDashboard(); // Recargar la lista de usuarios
+        }
+    });
+
+    // Manejar adición de nueva inversión
+    investmentForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const feedbackEl = document.getElementById('investment-feedback');
+        feedbackEl.textContent = 'Procesando...';
+        feedbackEl.style.color = '#F0C42F';
+
+        const userId = document.getElementById('inv-user-id').value;
+        const amount = document.getElementById('inv-amount').value;
+        const investmentDate = document.getElementById('inv-date').value;
+        const contractFile = document.getElementById('inv-contract').files[0];
+        const returnRate = 0.038; // 3.8% Fijo
+
+        if (!contractFile) {
+            feedbackEl.textContent = 'Error: Debes subir un archivo de contrato.';
+            feedbackEl.style.color = 'red';
+            return;
+        }
+        
+        // 1. Subir el contrato a Supabase Storage
+        const filePath = `${userId}/${Date.now()}-${contractFile.name}`;
+        // Usamos la variable corregida 'supabaseClient'
+        const { error: uploadError } = await supabaseClient.storage
+            .from('contracts')
+            .upload(filePath, contractFile);
+
+        if (uploadError) {
+            feedbackEl.textContent = 'Error al subir el contrato: ' + uploadError.message;
+            feedbackEl.style.color = 'red';
+            return;
+        }
+
+        // 2. Insertar el registro en la tabla 'investments'
+        // Usamos la variable corregida 'supabaseClient'
+        const { error: insertError } = await supabaseClient
+            .from('investments')
+            .insert([{
+                user_id: userId,
+                amount: amount,
+                investment_date: investmentDate,
+                return_rate: returnRate,
+                status: 'Activa',
+                contract_url: filePath // Guardamos la ruta del archivo subido
+            }]);
+
+        if (insertError) {
+            feedbackEl.textContent = 'Error al registrar la inversión: ' + insertError.message;
+            feedbackEl.style.color = 'red';
+        } else {
+            feedbackEl.textContent = '¡Inversión registrada con éxito!';
+            feedbackEl.style.color = 'green';
+            investmentForm.reset();
+            initializeDashboard(); // Recargar datos
+        }
+    });
+
+    // Iniciar la verificación de sesión al cargar la página
+    checkSession();
+});
+</script>
+</body>
+</html>
