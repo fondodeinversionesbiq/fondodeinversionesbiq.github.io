@@ -7,6 +7,7 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,26 +19,14 @@
         .text-gold-400 { color: #F0C42F; }
         .ring-gold-500 { --tw-ring-color: #D4AF37; }
         .form-input {
-            width: 100%;
-            background-color: #374151;
-            border: 1px solid #4b5563;
-            color: white;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-        }
+            width: 100%; background-color: #374151; border: 1px solid #4b5563;
+            color: white; padding: 0.75rem; border-radius: 0.5rem; }
         .form-input:focus {
-            outline: none;
-            --tw-ring-opacity: 1;
-            box-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-        }
+            outline: none; --tw-ring-opacity: 1;
+            box-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color); }
         .btn {
-            display: inline-block;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            font-weight: bold;
-            text-align: center;
-            transition: background-color 0.2s;
-        }
+            display: inline-block; padding: 0.75rem 1.5rem; border-radius: 0.5rem;
+            font-weight: bold; text-align: center; transition: background-color 0.2s; cursor: pointer; }
         .btn-primary { background-color: #D4AF37; color: black; }
         .btn-primary:hover { background-color: #b89b3c; }
         .btn-secondary { background-color: #4b5563; color: white; }
@@ -50,14 +39,8 @@
         <div class="w-full max-w-md bg-gray-900 p-8 rounded-lg shadow-lg border border-gray-700">
             <h1 class="text-2xl font-bold text-center text-gold-400 mb-6">Acceso de Administrador</h1>
             <form id="login-form" class="space-y-4">
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-400">Correo Electrónico</label>
-                    <input type="email" id="email" required class="form-input mt-1">
-                </div>
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-400">Contraseña</label>
-                    <input type="password" id="password" required class="form-input mt-1">
-                </div>
+                <input type="email" id="email" placeholder="Correo Electrónico" required class="form-input">
+                <input type="password" id="password" placeholder="Contraseña" required class="form-input">
                 <button type="submit" class="btn btn-primary w-full">Ingresar</button>
             </form>
             <div id="login-feedback" class="mt-4 text-center text-red-400"></div>
@@ -83,21 +66,44 @@
                         <div id="register-feedback" class="text-center"></div>
                     </form>
                 </div>
-
                 <div class="bg-gray-900 p-6 rounded-lg border border-gray-700">
                     <h2 class="text-lg font-bold mb-4 text-gold-400 border-b border-gray-600 pb-2">Añadir Nueva Inversión</h2>
                     <form id="add-investment-form" class="space-y-4">
                         <select id="inv-user-id" required class="form-input"><option value="">Seleccionar Inversionista...</option></select>
-                        <input type="number" id="inv-amount" placeholder="Monto de Inversión (ej: 50000000)" required class="form-input" step="100000">
+                        <input type="number" id="inv-amount" placeholder="Monto de Inversión" required class="form-input">
                         <input type="date" id="inv-date" required class="form-input">
                         <label class="block text-sm text-gray-400">Contrato (PDF)</label>
                         <input type="file" id="inv-contract" accept=".pdf" required class="form-input file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gold-600 file:text-black hover:file:bg-gold-500">
-                        <button type="submit" class="btn btn-primary w-full">Añadir Inversión</button>
+                        <button type="submit" class="btn btn-primary w-full">Añadir Inversion</button>
                         <div id="investment-feedback" class="text-center"></div>
                     </form>
                 </div>
+                <div class="bg-gray-900 p-6 rounded-lg border border-gray-700">
+                    <h2 class="text-lg font-bold mb-4 text-gold-400 border-b border-gray-600 pb-2">Registrar Abono de Inversión</h2>
+                    <form id="add-deposit-form" class="space-y-4">
+                        <select id="dep-user-id" required class="form-input"><option value="">Seleccionar Inversionista...</option></select>
+                        <select id="dep-investment-id" required class="form-input"><option value="">Seleccionar Inversión...</option></select>
+                        <input type="number" id="dep-amount" placeholder="Monto del Abono" required class="form-input">
+                        <input type="date" id="dep-date" required class="form-input">
+                        <label class="block text-sm text-gray-400">Comprobante (Imagen o PDF)</label>
+                        <input type="file" id="dep-proof" accept="image/*,.pdf" required class="form-input file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gold-600 file:text-black hover:file:bg-gold-500">
+                        <button type="submit" class="btn btn-primary w-full">Registrar Abono</button>
+                        <div id="deposit-feedback" class="text-center"></div>
+                    </form>
+                </div>
+                <div class="bg-gray-900 p-6 rounded-lg border border-gray-700">
+                    <h2 class="text-lg font-bold mb-4 text-gold-400 border-b border-gray-600 pb-2">Registrar Retiro</h2>
+                    <form id="add-withdrawal-form" class="space-y-4">
+                        <select id="wd-user-id" required class="form-input"><option value="">Seleccionar Inversionista...</option></select>
+                        <input type="number" id="wd-amount" placeholder="Monto del Retiro" required class="form-input">
+                        <input type="date" id="wd-date" required class="form-input">
+                        <label class="block text-sm text-gray-400">Comprobante (Imagen o PDF)</label>
+                        <input type="file" id="wd-voucher" accept="image/*,.pdf" required class="form-input file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gold-600 file:text-black hover:file:bg-gold-500">
+                        <button type="submit" class="btn btn-primary w-full">Registrar Retiro</button>
+                        <div id="withdrawal-feedback" class="text-center"></div>
+                    </form>
+                </div>
             </div>
-
             <div class="lg:col-span-2 bg-gray-900 p-6 rounded-lg border border-gray-700">
                 <h2 class="text-lg font-bold mb-4 text-gold-400 border-b border-gray-600 pb-2">Lista de Inversionistas</h2>
                 <div class="overflow-x-auto">
@@ -109,8 +115,7 @@
                                 <th class="p-2">Capital Activo</th>
                             </tr>
                         </thead>
-                        <tbody id="user-list-body">
-                            </tbody>
+                        <tbody id="user-list-body"></tbody>
                     </table>
                 </div>
             </div>
@@ -119,35 +124,35 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    const { jsPDF } = window.jspdf;
     // --- CONFIGURACIÓN DE SUPABASE ---
-    const SUPABASE_URL = 'https://cgpioodxsryqfyofjfvy.supabase.co'; // Pega tu URL aquí
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNncGlvb2R4c3J5cWZ5b2ZqZnZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTY2MjIsImV4cCI6MjA2MzI5MjYyMn0.TB8MmMzMc18hktGiWal_Fjmuq4ptqp7pz3mi0o8LJLY'; // Pega tu Clave Anon aquí
-    
-    // --- CORRECCIÓN AQUÍ ---
-    // Renombramos la constante a 'supabaseClient' para evitar el conflicto.
+    const SUPABASE_URL = 'https://cgpioodxsryqfyofjfvy.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNncGlvb2R4c3J5cWZ5b2ZqZnZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MTY2MjIsImV4cCI6MjA2MzI5MjYyMn0.TB8MmMzMc18hktGiWal_Fjmuq4ptqp7pz3mi0o8LJLY';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // --- ELEMENTOS DEL DOM ---
     const adminLoginSection = document.getElementById('admin-login');
     const adminDashboardSection = document.getElementById('admin-dashboard');
     const loginForm = document.getElementById('login-form');
     const loginFeedback = document.getElementById('login-feedback');
     const adminLogoutBtn = document.getElementById('admin-logout-btn');
+    const userListBody = document.getElementById('user-list-body');
+    const userSelectDropdown = document.getElementById('inv-user-id');
+    const userSelectDropdownDep = document.getElementById('dep-user-id');
+    const userSelectDropdownRet = document.getElementById('wd-user-id');
+    const registerForm = document.getElementById('register-user-form');
+    const investmentForm = document.getElementById('add-investment-form');
+    const depositForm = document.getElementById('add-deposit-form');
+    const withdrawalForm = document.getElementById('add-withdrawal-form');
+    
+    // --- HELPERS ---
     const formatCurrency = (amount) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(amount);
 
     // --- LÓGICA DE AUTENTICACIÓN ---
-
-    // Verificar si hay una sesión activa al cargar la página
     const checkSession = async () => {
-        // Usamos la variable corregida 'supabaseClient'
         const { data: { session } } = await supabaseClient.auth.getSession();
-        if (session) {
-            const isAdmin = await verifyAdminRole(session.user);
-            if (isAdmin) {
-                showDashboard();
-            } else {
-                await supabaseClient.auth.signOut(); // Desloguear si no es admin
-                showLogin("Acceso denegado. No tienes permisos de administrador.");
-            }
+        if (session && await verifyAdminRole(session.user)) {
+            showDashboard();
         } else {
             showLogin();
         }
@@ -155,14 +160,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const verifyAdminRole = async (user) => {
         if (!user) return false;
-        // Usamos la variable corregida 'supabaseClient'
-        const { data, error } = await supabaseClient
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single();
-        
-        return !error && data && data.role === 'admin';
+        const { data } = await supabaseClient.from('profiles').select('role').eq('id', user.id).single();
+        return data && data.role === 'admin';
     };
     
     const showDashboard = () => {
@@ -177,114 +176,109 @@ document.addEventListener('DOMContentLoaded', () => {
         loginFeedback.textContent = message;
     };
 
-    // Manejar el envío del formulario de login
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        loginFeedback.textContent = '';
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-
-        // Usamos la variable corregida 'supabaseClient'
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value
+        });
         if (error) {
             loginFeedback.textContent = 'Error: ' + error.message;
-            return;
-        }
-
-        if (data.user) {
-            const isAdmin = await verifyAdminRole(data.user);
-            if (isAdmin) {
-                showDashboard();
-            } else {
-                await supabaseClient.auth.signOut();
-                loginFeedback.textContent = 'Acceso denegado. No eres administrador.';
-            }
+        } else if (data.user && await verifyAdminRole(data.user)) {
+            showDashboard();
+        } else {
+            await supabaseClient.auth.signOut();
+            loginFeedback.textContent = 'Acceso denegado. No eres administrador.';
         }
     });
 
-    // Manejar el logout
     adminLogoutBtn.addEventListener('click', async () => {
-        // Usamos la variable corregida 'supabaseClient'
         await supabaseClient.auth.signOut();
         showLogin('Sesión cerrada correctamente.');
     });
 
-
     // --- LÓGICA DEL DASHBOARD ---
-
-    const userListBody = document.getElementById('user-list-body');
-    const userSelectDropdown = document.getElementById('inv-user-id');
-    const registerForm = document.getElementById('register-user-form');
-    const investmentForm = document.getElementById('add-investment-form');
-    
     const initializeDashboard = async () => {
-        // Cargar y mostrar la lista de usuarios
-        // Usamos la variable corregida 'supabaseClient'
-        const { data: profiles, error: profilesError } = await supabaseClient
-            .from('profiles')
-            .select('id, full_name, email')
-            .order('full_name');
-        
-        if (profilesError) {
-            console.error("Error al cargar perfiles:", profilesError);
-            return;
-        }
+        // Consultar las tres tablas necesarias al mismo tiempo para mayor eficiencia
+        const [profilesRes, investmentsRes, withdrawalsRes] = await Promise.all([
+            supabaseClient.from('profiles').select('id, full_name, email').neq('role', 'admin').order('full_name'),
+            supabaseClient.from('investments').select('user_id, amount, status'),
+            supabaseClient.from('withdrawals').select('user_id, amount')
+        ]);
 
-        // Usamos la variable corregida 'supabaseClient'
-        const { data: investments, error: invError } = await supabaseClient
-            .from('investments')
-            .select('user_id, amount, status');
+        const { data: profiles, error: profilesError } = profilesRes;
+        const { data: investments, error: invError } = investmentsRes;
+        const { data: withdrawals, error: wdError } = withdrawalsRes;
 
-        if (invError) {
-            console.error("Error al cargar inversiones:", invError);
-            return;
-        }
+        if (profilesError) return console.error("Error al cargar perfiles:", profilesError);
+        if (invError) return console.error("Error al cargar inversiones:", invError);
+        if (wdError) return console.error("Error al cargar retiros:", wdError);
 
-        // Limpiar lista y dropdown
+        // Limpiar tabla
         userListBody.innerHTML = '';
-        userSelectDropdown.innerHTML = '<option value="">Seleccionar Inversionista...</option>';
 
+        // Preparar las opciones del dropdown una sola vez
+        const optionsHTML = profiles.map(profile => 
+            `<option value="${profile.id}">${profile.full_name}</option>`
+        ).join('');
+
+        // Rellenar todos los dropdowns
+        const placeholder = '<option value="">Seleccionar Inversionista...</option>';
+        userSelectDropdown.innerHTML = placeholder + optionsHTML;
+        userSelectDropdownDep.innerHTML = placeholder + optionsHTML;
+        userSelectDropdownRet.innerHTML = placeholder + optionsHTML;
+        
+        // Rellenar la tabla de inversionistas
         profiles.forEach(profile => {
-            // Llenar la tabla
-            const userInvestments = investments.filter(inv => inv.user_id === profile.id && inv.status === 'Activa');
-            const totalInvested = userInvestments.reduce((sum, inv) => sum + parseFloat(inv.amount), 0);
+            // Suma todas las inversiones activas del usuario
+            const totalInvested = investments
+                .filter(inv => inv.user_id === profile.id && inv.status === 'Activa')
+                .reduce((sum, inv) => sum + parseFloat(inv.amount), 0);
+
+            // Suma todos los retiros del usuario
+            const totalWithdrawn = withdrawals
+                .filter(wd => wd.user_id === profile.id)
+                .reduce((sum, wd) => sum + parseFloat(wd.amount), 0);
+
+            // Calcula el capital activo real
+            const activeCapital = totalInvested - totalWithdrawn;
             
             const row = `
                 <tr class="border-b border-gray-700 hover:bg-gray-800">
                     <td class="p-2">${profile.full_name}</td>
                     <td class="p-2">${profile.email}</td>
-                    <td class="p-2">${formatCurrency(totalInvested)}</td>
+                    <td class="p-2">${formatCurrency(activeCapital)}</td>
                 </tr>`;
             userListBody.innerHTML += row;
-
-            // Llenar el dropdown
-            const option = document.createElement('option');
-            option.value = profile.id;
-            option.textContent = profile.full_name;
-            userSelectDropdown.appendChild(option);
         });
     };
     
-    // Manejar registro de nuevo usuario
+    // --- EVENT LISTENERS PARA DROPDOWNS DINÁMICOS ---
+    userSelectDropdownDep.addEventListener('change', async (e) => {
+        const userId = e.target.value;
+        const investmentSelect = document.getElementById('dep-investment-id');
+        investmentSelect.innerHTML = '<option value="">Seleccionar Inversión...</option>';
+        if (!userId) return;
+        const { data: investments, error } = await supabaseClient.from('investments').select('id, amount, investment_date').eq('user_id', userId).eq('status', 'Activa');
+        if (error) return console.error("Error al cargar inversiones:", error);
+        const options = investments.map(inv => `<option value="${inv.id}">Inversión de ${formatCurrency(inv.amount)} el ${inv.investment_date}</option>`).join('');
+        investmentSelect.innerHTML += options;
+    });
+
+    // --- MANEJO DE FORMULARIOS ---
+    
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const feedbackEl = document.getElementById('register-feedback');
         feedbackEl.textContent = 'Registrando...';
         
-        const fullName = document.getElementById('reg-fullname').value;
-        const email = document.getElementById('reg-email').value;
-        const password = document.getElementById('reg-password').value;
-        const phone = document.getElementById('reg-phone').value;
-
-        // Usamos la variable corregida 'supabaseClient'
-        const { data, error } = await supabaseClient.auth.signUp({
-            email,
-            password,
+        const { error } = await supabaseClient.auth.signUp({
+            email: document.getElementById('reg-email').value,
+            password: document.getElementById('reg-password').value,
             options: {
-                data: { // Estos datos serán usados por el trigger handle_new_user
-                    full_name: fullName,
-                    phone: phone
+                data: {
+                    full_name: document.getElementById('reg-fullname').value,
+                    phone: document.getElementById('reg-phone').value
                 }
             }
         });
@@ -296,55 +290,43 @@ document.addEventListener('DOMContentLoaded', () => {
             feedbackEl.textContent = '¡Usuario registrado con éxito!';
             feedbackEl.style.color = 'green';
             registerForm.reset();
-            initializeDashboard(); // Recargar la lista de usuarios
+            initializeDashboard();
         }
     });
 
-    // Manejar adición de nueva inversión
     investmentForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const feedbackEl = document.getElementById('investment-feedback');
         feedbackEl.textContent = 'Procesando...';
-        feedbackEl.style.color = '#F0C42F';
-
-        const userId = document.getElementById('inv-user-id').value;
-        const amount = document.getElementById('inv-amount').value;
-        const investmentDate = document.getElementById('inv-date').value;
         const contractFile = document.getElementById('inv-contract').files[0];
-        const returnRate = 0.038; // 3.8% Fijo
 
         if (!contractFile) {
-            feedbackEl.textContent = 'Error: Debes subir un archivo de contrato.';
+            feedbackEl.textContent = 'Error: Debes subir un contrato.';
             feedbackEl.style.color = 'red';
             return;
         }
-        
-        // 1. Subir el contrato a Supabase Storage
-        const filePath = `${userId}/${Date.now()}-${contractFile.name}`;
-        // Usamos la variable corregida 'supabaseClient'
+
+        const userId = document.getElementById('inv-user-id').value;
+        const filePath = `${userId}/investment-contract-${Date.now()}-${contractFile.name}`;
         const { error: uploadError } = await supabaseClient.storage
             .from('contracts')
             .upload(filePath, contractFile);
 
         if (uploadError) {
-            feedbackEl.textContent = 'Error al subir el contrato: ' + uploadError.message;
+            feedbackEl.textContent = 'Error al subir contrato: ' + uploadError.message;
             feedbackEl.style.color = 'red';
             return;
         }
 
-        // 2. Insertar el registro en la tabla 'investments'
-        // Usamos la variable corregida 'supabaseClient'
         const { error: insertError } = await supabaseClient
             .from('investments')
             .insert([{
                 user_id: userId,
-                amount: amount,
-                investment_date: investmentDate,
-                return_rate: returnRate,
-                status: 'Activa',
-                contract_url: filePath // Guardamos la ruta del archivo subido
+                amount: document.getElementById('inv-amount').value,
+                investment_date: document.getElementById('inv-date').value,
+                contract_url: filePath
             }]);
-
+        
         if (insertError) {
             feedbackEl.textContent = 'Error al registrar la inversión: ' + insertError.message;
             feedbackEl.style.color = 'red';
@@ -352,11 +334,130 @@ document.addEventListener('DOMContentLoaded', () => {
             feedbackEl.textContent = '¡Inversión registrada con éxito!';
             feedbackEl.style.color = 'green';
             investmentForm.reset();
-            initializeDashboard(); // Recargar datos
+            initializeDashboard(); // Recargar datos para actualizar el capital
         }
     });
 
-    // Iniciar la verificación de sesión al cargar la página
+    depositForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const feedbackEl = document.getElementById('deposit-feedback');
+        feedbackEl.textContent = 'Procesando...';
+        let proofFile = document.getElementById('dep-proof').files[0];
+
+        if (!proofFile) {
+            feedbackEl.textContent = 'Error: Debes subir un comprobante.';
+            feedbackEl.style.color = 'red';
+            return;
+        }
+
+        const userId = document.getElementById('dep-user-id').value;
+        let filePath = `${userId}/return-proof-${Date.now()}`;
+        let uploadFile = proofFile;
+
+        if (proofFile.type.startsWith('image/')) {
+            // Convertir imagen a PDF
+            const pdf = new jsPDF();
+            const img = new Image();
+            const reader = new FileReader();
+            
+            reader.onload = async (event) => {
+                img.src = event.target.result;
+                img.onload = async () => {
+                    const imgWidth = pdf.internal.pageSize.getWidth();
+                    const imgHeight = (img.height * imgWidth) / img.width;
+                    pdf.addImage(img, 'JPEG', 0, 0, imgWidth, imgHeight);
+                    uploadFile = pdf.output('blob');
+                    filePath += '.pdf';
+
+                    // Proceder con la subida
+                    await uploadAndInsert();
+                };
+            };
+            reader.readAsDataURL(proofFile);
+        } else if (proofFile.type === 'application/pdf') {
+            filePath += `-${proofFile.name}`;
+            await uploadAndInsert();
+        } else {
+            feedbackEl.textContent = 'Error: Archivo no soportado.';
+            feedbackEl.style.color = 'red';
+            return;
+        }
+
+        async function uploadAndInsert() {
+            const { error: uploadError } = await supabaseClient.storage
+                .from('investment_proofs')
+                .upload(filePath, uploadFile);
+
+            if (uploadError) {
+                feedbackEl.textContent = 'Error al subir comprobante: ' + uploadError.message;
+                feedbackEl.style.color = 'red';
+                return;
+            }
+
+            const investmentId = document.getElementById('dep-investment-id').value;
+            const { error: insertError } = await supabaseClient
+                .from('monthly_returns')
+                .insert([{
+                    investment_id: investmentId,
+                    user_id: userId,
+                    return_date: document.getElementById('dep-date').value,
+                    return_amount: document.getElementById('dep-amount').value,
+                    voucher_url: filePath
+                }]);
+            
+            if (insertError) {
+                feedbackEl.textContent = 'Error al registrar el abono: ' + insertError.message;
+                feedbackEl.style.color = 'red';
+            } else {
+                feedbackEl.textContent = '¡Abono registrado con éxito!';
+                feedbackEl.style.color = 'green';
+                depositForm.reset();
+                initializeDashboard(); // Recargar datos si es necesario
+            }
+        }
+    });
+
+    withdrawalForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const feedbackEl = document.getElementById('withdrawal-feedback');
+        feedbackEl.textContent = 'Procesando...';
+        const voucherFile = document.getElementById('wd-voucher').files[0];
+
+        if (!voucherFile) {
+            feedbackEl.textContent = 'Error: Debes subir un comprobante.';
+            return;
+        }
+
+        const userIdWd = document.getElementById('wd-user-id').value;
+        const filePath = `${userIdWd}/withdrawal-voucher-${Date.now()}-${voucherFile.name}`;
+        const { error: uploadError } = await supabaseClient.storage
+            .from('vouchers')
+            .upload(filePath, voucherFile);
+
+        if (uploadError) {
+            feedbackEl.textContent = 'Error al subir comprobante: ' + uploadError.message;
+            return;
+        }
+
+        const { error: insertError } = await supabaseClient
+            .from('withdrawals')
+            .insert([{
+                user_id: userIdWd,
+                amount: document.getElementById('wd-amount').value,
+                withdrawal_date: document.getElementById('wd-date').value,
+                voucher_url: filePath
+            }]);
+        
+        if (insertError) {
+            feedbackEl.textContent = 'Error al registrar el retiro: ' + insertError.message;
+        } else {
+            feedbackEl.textContent = '¡Retiro registrado con éxito!';
+            feedbackEl.style.color = 'green';
+            withdrawalForm.reset();
+            initializeDashboard(); // Recargar datos para actualizar el capital
+        }
+    });
+
     checkSession();
 });
 </script>
